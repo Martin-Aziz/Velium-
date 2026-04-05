@@ -1,0 +1,94 @@
+name: CI Pipeline
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  gateway-rust:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/gateway-rust
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Type check
+        run: cargo check
+
+      - name: Unit tests
+        run: cargo test
+
+  llm-python:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/llm-python
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Unit tests
+        run: pytest
+
+  renderer-node:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/renderer-node
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+  frontend-node:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+  compose-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate docker compose config
+        run: docker compose config > /dev/null

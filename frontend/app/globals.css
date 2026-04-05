@@ -1,0 +1,131 @@
+:root {
+  --ink-1: #0f172a;
+  --ink-2: #334155;
+  --surface: #f8fafc;
+  --panel: #ffffff;
+  --accent: #1f4e79;
+  --accent-2: #2e75b6;
+  --focus: #0ea5e9;
+  --danger: #dc2626;
+  --shadow: 0 10px 30px rgb(15 23 42 / 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink-1);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgb(46 117 182 / 0.12), transparent 50%),
+    radial-gradient(1000px 500px at 110% 10%, rgb(14 165 233 / 0.08), transparent 55%),
+    var(--surface);
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+}
+
+.shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 40px 20px 64px;
+}
+
+.hero {
+  margin-bottom: 24px;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+}
+
+.hero p {
+  margin-top: 12px;
+  color: var(--ink-2);
+  max-width: 64ch;
+}
+
+.workspace {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid rgb(148 163 184 / 0.25);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field label {
+  font-weight: 600;
+}
+
+textarea,
+input,
+select {
+  width: 100%;
+  border: 1px solid rgb(148 163 184 / 0.45);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+textarea:focus,
+input:focus,
+select:focus {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+button {
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.result {
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+@media (max-width: 800px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

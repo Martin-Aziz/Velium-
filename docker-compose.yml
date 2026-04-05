@@ -1,0 +1,99 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      NEXT_PUBLIC_GATEWAY_URL: http://localhost/api
+    depends_on:
+      gateway:
+        condition: service_started
+    ports:
+      - "3000:3000"
+
+  gateway:
+    build:
+      context: ./backend/gateway-rust
+    env_file:
+      - .env
+    environment:
+      GATEWAY_PORT: ${GATEWAY_PORT:-8080}
+      MASTER_API_KEYS: ${MASTER_API_KEYS:-dgk_dev_local_key}
+      LLM_SERVICE_URL: http://llm:8000
+      RENDERER_SERVICE_URL: http://renderer:3001
+    depends_on:
+      llm:
+        condition: service_healthy
+      renderer:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      nats:
+        condition: service_started
+    ports:
+      - "8080:8080"
+
+  llm:
+    build:
+      context: ./backend/llm-python
+    env_file:
+      - .env
+    environment:
+      LLM_SERVICE_PORT: ${LLM_SERVICE_PORT:-8000}
+      LLM_MODEL: ${LLM_MODEL:-claude-sonnet-4-20250514}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports:
+      - "8000:8000"
+
+  renderer:
+    build:
+      context: ./backend/renderer-node
+    env_file:
+      - .env
+    environment:
+      RENDERER_PORT: ${RENDERER_PORT:-3001}
+    ports:
+      - "3001:3001"
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-velium}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-velium}
+      POSTGRES_DB: ${POSTGRES_DB:-velium}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-velium} -d ${POSTGRES_DB:-velium}"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+
+  nats:
+    image: nats:2.10-alpine
+    ports:
+      - "4222:4222"
+
+  reverse-proxy:
+    image: nginx:1.27-alpine
+    depends_on:
+      frontend:
+        condition: service_started
+      gateway:
+        condition: service_started
+    ports:
+      - "80:80"
+    volumes:
+      - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes:
+  postgres_data:

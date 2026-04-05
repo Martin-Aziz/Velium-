@@ -1,0 +1,28 @@
+# Node
+node_modules/
+dist/
+.next/
+coverage/
+*.tsbuildinfo
+
+# Python
+__pycache__/
+.pytest_cache/
+.venv/
+*.pyc
+
+# Rust
+target/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.DS_Store
+.idea/
+.vscode/settings.json
+
+# Generated artifacts
+tmp/
+artifacts/
